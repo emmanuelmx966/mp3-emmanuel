@@ -23,3 +23,16 @@ secrets.properties
 
 # Room schemas deben subirse (excepción)
 !app/schemas/
+
+# Android Studio / IntelliJ (carpeta completa)
+/.idea/
+
+# Keystores y secretos (NUNCA subir)
+*.jks
+*.keystore
+keystore.properties
+secrets.properties
+.env
+
+# Room schemas deben subirse (excepción)
+!app/schemas/
