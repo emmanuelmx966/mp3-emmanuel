@@ -13,3 +13,13 @@
 .externalNativeBuild
 .cxx
 local.properties
+
+# Keystores y secretos (NUNCA subir)
+*.jks
+*.keystore
+keystore.properties
+secrets.properties
+.env
+
+# Room schemas deben subirse (excepción)
+!app/schemas/

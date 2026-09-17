@@ -9,14 +9,17 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import com.emmanuelmx.mp3emmanuel.ui.MusicViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PlaylistScreen(
     viewModel: MusicViewModel,
-    onBackClick: () -> Unit
+    onBackClick: () -> Unit,
+    onOpenPlaylist: (Long) -> Unit
 ) {
     val playlists by viewModel.playlists.collectAsState()
     var showDialog by remember { mutableStateOf(false) }
@@ -60,7 +63,7 @@ fun PlaylistScreen(
                     IconButton(onClick = onBackClick) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = null
+                            contentDescription = "Volver"
                         )
                     }
                 }
@@ -68,16 +71,40 @@ fun PlaylistScreen(
         },
         floatingActionButton = {
             FloatingActionButton(onClick = { showDialog = true }) {
-                Icon(Icons.Default.Add, contentDescription = null)
+                Icon(Icons.Default.Add, contentDescription = "Nueva lista")
             }
         }
     ) { padding ->
-        LazyColumn(modifier = Modifier.padding(padding)) {
-            items(playlists) { playlist ->
-                ListItem(
-                    headlineContent = { Text(playlist.name) },
-                    modifier = Modifier.clickable { /* TODO: Open playlist */ }
-                )
+        Box(
+            modifier = Modifier
+                .padding(padding)
+                .fillMaxSize()
+        ) {
+            if (playlists.isEmpty()) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(32.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
+                ) {
+                    Text("No hay listas", style = MaterialTheme.typography.titleLarge)
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(
+                        "Pulsa el botón + para crear una.",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            } else {
+                LazyColumn(modifier = Modifier.fillMaxSize()) {
+                    items(playlists, key = { it.id }) { playlist ->
+                        ListItem(
+                            headlineContent = { Text(playlist.name) },
+                            modifier = Modifier.clickable { onOpenPlaylist(playlist.id) }
+                        )
+                    }
+                }
             }
         }
     }

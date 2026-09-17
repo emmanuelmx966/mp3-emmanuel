@@ -5,6 +5,8 @@ import android.content.ContentUris
 import android.net.Uri
 import android.provider.MediaStore
 import com.emmanuelmx.mp3emmanuel.data.local.SongDao
+import com.emmanuelmx.mp3emmanuel.data.model.Playlist
+import com.emmanuelmx.mp3emmanuel.data.model.PlaylistSong
 import com.emmanuelmx.mp3emmanuel.data.model.Song
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
@@ -16,13 +18,37 @@ class SongRepository(
 ) {
     fun getAllSongs(): Flow<List<Song>> = songDao.getAllSongs()
 
-    fun getAllPlaylists(): Flow<List<com.emmanuelmx.mp3emmanuel.data.model.Playlist>> = songDao.getAllPlaylists()
+    fun getFavoriteSongs(): Flow<List<Song>> = songDao.getFavoriteSongs()
+
+    fun getAllPlaylists(): Flow<List<Playlist>> = songDao.getAllPlaylists()
+
+    fun getSongsInPlaylist(playlistId: Long): Flow<List<Song>> =
+        songDao.getSongsInPlaylist(playlistId)
+
+    fun getSongCountInPlaylist(playlistId: Long): Flow<Int> =
+        songDao.getSongCountInPlaylist(playlistId)
+
+    suspend fun getPlaylistById(playlistId: Long): Playlist? =
+        songDao.getPlaylistById(playlistId)
 
     suspend fun updateSong(song: Song) = songDao.updateSong(song)
 
-    suspend fun createPlaylist(playlist: com.emmanuelmx.mp3emmanuel.data.model.Playlist) = songDao.createPlaylist(playlist)
+    suspend fun createPlaylist(playlist: Playlist): Long = songDao.createPlaylist(playlist)
+
+    suspend fun deletePlaylist(playlist: Playlist) = songDao.deletePlaylist(playlist)
+
+    suspend fun deletePlaylistById(playlistId: Long) = songDao.deletePlaylistById(playlistId)
+
+    suspend fun addSongToPlaylist(playlistId: Long, songId: Long) =
+        songDao.addSongToPlaylist(PlaylistSong(playlistId, songId))
+
+    suspend fun removeSongFromPlaylist(playlistId: Long, songId: Long) =
+        songDao.removeSongFromPlaylist(playlistId, songId)
 
     suspend fun refreshSongs() = withContext(Dispatchers.IO) {
+        val favoriteIds = songDao.getFavoriteIds().toSet()
+        val previousDates = songDao.getAllIdsWithDate().associate { it.id to it.dateAdded }
+
         val songs = mutableListOf<Song>()
         val collection = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI
         val projection = arrayOf(
@@ -57,8 +83,12 @@ class SongRepository(
                 val album = cursor.getString(albumColumn)
                 val duration = cursor.getLong(durationColumn)
                 val albumId = cursor.getLong(albumIdColumn)
-                val contentUri = ContentUris.withAppendedId(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, id)
-                val albumArtUri = ContentUris.withAppendedId(Uri.parse("content://media/external/audio/albumart"), albumId)
+                val contentUri = ContentUris.withAppendedId(
+                    MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, id
+                )
+                val albumArtUri = ContentUris.withAppendedId(
+                    Uri.parse("content://media/external/audio/albumart"), albumId
+                )
 
                 songs.add(
                     Song(
@@ -68,7 +98,9 @@ class SongRepository(
                         album = album,
                         duration = duration,
                         uri = contentUri.toString(),
-                        albumArtUri = albumArtUri.toString()
+                        albumArtUri = albumArtUri.toString(),
+                        isFavorite = favoriteIds.contains(id),
+                        dateAdded = previousDates[id] ?: System.currentTimeMillis()
                     )
                 )
             }

@@ -32,6 +32,16 @@ android {
     buildFeatures {
         compose = true
     }
+
+    // Permite que los tests instrumentados accedan a los esquemas exportados
+    sourceSets {
+        getByName("androidTest").assets.directories.add("$projectDir/schemas")
+    }
+}
+
+// Exporta los esquemas de Room a app/schemas/ (¡deben subirse a Git!)
+ksp {
+    arg("room.schemaLocation", "$projectDir/schemas")
 }
 
 dependencies {

@@ -2,7 +2,7 @@ package com.emmanuelmx.mp3emmanuel.ui.screens
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -21,7 +21,10 @@ fun EqualizerScreen(onBackClick: () -> Unit) {
                 title = { Text("Ecualizador") },
                 navigationIcon = {
                     IconButton(onClick = onBackClick) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = null)
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = null
+                        )
                     }
                 }
             )
@@ -40,18 +43,18 @@ fun EqualizerScreen(onBackClick: () -> Unit) {
                 onValueChange = { boostBass = it },
                 valueRange = 0f..100f
             )
-            
+
             Spacer(modifier = Modifier.height(24.dp))
-            
+
             Text("Agudos", style = MaterialTheme.typography.titleMedium)
             Slider(
                 value = boostTreble,
                 onValueChange = { boostTreble = it },
                 valueRange = 0f..100f
             )
-            
+
             Spacer(modifier = Modifier.height(32.dp))
-            
+
             Text("Perfiles Preestablecidos", style = MaterialTheme.typography.titleMedium)
             val presets = listOf("Normal", "Pop", "Rock", "Jazz", "Classic")
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {

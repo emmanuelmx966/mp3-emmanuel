@@ -11,7 +11,7 @@ composeBom = "2026.02.01"
 media3 = "1.5.1"
 coil = "2.7.0"
 room = "2.8.5"
-ksp = "2.2.10-2.0.2"
+ksp = "2.3.12"
 navigation = "2.8.5"
 
 [libraries]

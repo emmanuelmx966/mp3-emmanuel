@@ -17,7 +17,9 @@ class MP3App : Application() {
             this,
             AppDatabase::class.java,
             "mp3_emmanuel_db"
-        ).build()
+        )
+            .addMigrations(AppDatabase.MIGRATION_1_2)
+            .build()
         songRepository = SongRepository(contentResolver, database.songDao())
         musicController = MusicController(this)
     }
